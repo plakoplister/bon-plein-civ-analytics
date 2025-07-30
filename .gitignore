@@ -1,0 +1,32 @@
+# Excel files
+*.xlsx
+*.xls
+~$*.xlsx
+~$*.xls
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Generated images
+*.png
+*.jpg
+*.jpeg
+
+# MacOS
+.DS_Store
+
+# Backup folders
+BACKUP/
+
+# Large data files (keep only essential ones)
+*.csv
+!broyage_data.json
+!dynamic_data_enriched.json
+
+# Word reports (too large)
+*.docx
+
+# Temporary files
+*.tmp

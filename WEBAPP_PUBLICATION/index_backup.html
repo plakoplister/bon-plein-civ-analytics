@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Côte d'Ivoire - Analytics Cacao 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60px;
+            width: auto;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .language-switch {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 5px;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tab:last-child {
+            border-right: none;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab.active {
+            background: white;
+            color: #2c3e50;
+        }
+
+        .content {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #2c3e50;
+        }
+
+        .info-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .zes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .zes-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .zes-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .map-container {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .content {
+                padding: 20px;
+            }
+            .map-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.PNG" alt="Bon Plein Logo" class="logo">
+            <div class="language-switch">
+                <button class="lang-btn active" onclick="switchLanguage('fr')">FR</button>
+                <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+            </div>
+            <div>
+                <h1 data-fr="Analytics Cacao Côte d'Ivoire" data-en="Côte d'Ivoire Cocoa Analytics">Analytics Cacao Côte d'Ivoire</h1>
+                <p data-fr="Analyse complète des exportations • Oct 2024 - Juin 2025" data-en="Complete export analysis • Oct 2024 - June 2025">Analyse complète des exportations • Oct 2024 - Juin 2025</p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('zes')" data-fr="ZES" data-en="SEZ">ZES</button>
+            <button class="tab" onclick="showTab('transformation')" data-fr="Transformation" data-en="Processing">Transformation</button>
+            <button class="tab" onclick="showTab('destinations')" data-fr="Destinations" data-en="Destinations">Destinations</button>
+            <button class="tab" onclick="showTab('cartes')" data-fr="Cartes" data-en="Maps">Cartes</button>
+        </div>
+
+        <div class="content">
+            <!-- Onglet ZES -->
+            <div id="zes" class="tab-content active">
+                <h2 data-fr="Zones Économiques Spéciales (ZES) - Côte d'Ivoire" data-en="Special Economic Zones (SEZ) - Côte d'Ivoire">Zones Économiques Spéciales (ZES) - Côte d'Ivoire</h2>
+                
+                <div class="map-container">
+                    <div id="zesMap" style="height: 100%;"></div>
+                </div>
+                
+                <div class="info-section">
+                    <h3 data-fr="Vue d'ensemble des ZES ivoiriennes" data-en="Overview of Ivorian SEZ">Vue d'ensemble des ZES ivoiriennes</h3>
+                    <p data-fr="Les Zones Économiques Spéciales de Côte d'Ivoire sont des espaces dédiés au développement industriel, particulièrement orientés vers la transformation des matières premières agricoles. Ces zones bénéficient d'avantages fiscaux et réglementaires pour attirer les investissements directs étrangers." data-en="Côte d'Ivoire's Special Economic Zones are spaces dedicated to industrial development, particularly focused on processing agricultural raw materials. These zones benefit from fiscal and regulatory advantages to attract foreign direct investment.">Les Zones Économiques Spéciales de Côte d'Ivoire sont des espaces dédiés au développement industriel, particulièrement orientés vers la transformation des matières premières agricoles. Ces zones bénéficient d'avantages fiscaux et réglementaires pour attirer les investissements directs étrangers.</p>
+                </div>
+
+                <div class="zes-grid">
+                    <div class="zes-card">
+                        <h4>ZEI Arise Abidjan PK24</h4>
+                        <p><strong>Localisation:</strong> Akoupé-Zeudji PK24, Anyama (Nord d'Abidjan)</p>
+                        <p><strong>Superficie:</strong> 444 hectares (ZEI) / 1,000 ha (projet global PK24)</p>
+                        <p><strong>Investissement:</strong> +107 milliards FCFA</p>
+                        <p><strong>Secteurs ciblés:</strong> Agro-transformation, recyclage, matériaux de construction, pharmaceutiques</p>
+                        <p><strong>Statut 2024:</strong> En développement actif, pierre posée en 2022</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>ZEI San Pedro</h4>
+                        <p><strong>Localisation:</strong> San Pedro (Sud-Ouest)</p>
+                        <p><strong>Focus:</strong> Transformation des produits agricoles</p>
+                        <p><strong>Avantage:</strong> Proximité du 2ème port du pays</p>
+                        <p><strong>Développeur:</strong> Arise Ivoire</p>
+                        <p><strong>Statut 2024:</strong> Zone industrielle de classe mondiale</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>ZEI Ferkessédougou</h4>
+                        <p><strong>Localisation:</strong> Nord de la Côte d'Ivoire</p>
+                        <p><strong>Focus:</strong> Agro-industrie et transformation</p>
+                        <p><strong>Avantage:</strong> Proximité des zones de production agricole</p>
+                        <p><strong>Développeur:</strong> Arise Ivoire</p>
+                        <p><strong>Statut 2024:</strong> Phase de développement</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>ZES Transfrontalière</h4>
+                        <p><strong>Localisation:</strong> Korhogo (CI) - Sikasso (Mali) - Bobo-Dioulasso (BF)</p>
+                        <p><strong>Type:</strong> Zone économique spéciale commune</p>
+                        <p><strong>Avantage:</strong> Intégration régionale CEDEAO</p>
+                        <p><strong>Focus:</strong> Commerce et transit régional</p>
+                        <p><strong>Statut 2024:</strong> Initiative lancée</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>+150</h3>
+                        <p>Unités de transformation attendues</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>1 Md€</h3>
+                        <p>Investissements directs étrangers</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>4</h3>
+                        <p>ZES principales actives</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>2024-2027</h3>
+                        <p>Période de déploiement</p>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Secteurs prioritaires dans les ZES</h3>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Transformation de l'anacarde:</strong> Valorisation de la 1ère production mondiale</li>
+                        <li><strong>Industrie du caoutchouc:</strong> Pneumatiques et produits dérivés</li>
+                        <li><strong>Transformation du manioc:</strong> Amidon, farine, bioéthanol</li>
+                        <li><strong>Industrie du karité:</strong> Cosmétiques et agroalimentaire</li>
+                        <li><strong>Cacao et dérivés:</strong> Chocolaterie et poudre de cacao</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Onglet Transformation -->
+            <div id="transformation" class="tab-content">
+                <h2>Capacités de Transformation du Cacao</h2>
+                <div class="loading">Chargement des données de transformation...</div>
+            </div>
+
+            <!-- Onglet Destinations -->
+            <div id="destinations" class="tab-content">
+                <h2>Destinations des Exportations</h2>
+                <div class="loading">Chargement des données de destinations...</div>
+            </div>
+
+            <!-- Onglet Cartes -->
+            <div id="cartes" class="tab-content">
+                <h2>Cartographie des Risques</h2>
+                <div class="loading">Chargement de la cartographie...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allData = null;
+        let broyageData = null;
+        let filteredRecords = [];
+        let zesMap = null;
+        let currentLang = 'fr';
+
+        // Translations object
+        const translations = {
+            fr: {
+                // Stats cards
+                'tonnes_year_installed': 'Tonnes/an installées',
+                'utilization_rate': "Taux d'utilisation",
+                'active_companies': 'Sociétés actives',
+                'growth_2027': 'Croissance prévue 2027',
+                'company_recap': 'Tableau récapitulatif des acteurs',
+                'company': 'Société',
+                'group': 'Groupe',
+                'installed_capacity': 'Capacité Installée<br>(tonnes/an)',
+                'used_capacity': 'Capacité Utilisée<br>(tonnes/an)',
+                'utilization': 'Taux Utilisation',
+                'projects_confirm': 'Projets à Confirmer<br>(tonnes/an)',
+                'forecasts_2027': 'Prévisions 2027-28<br>(tonnes/an)',
+                'extensions_confirm': 'Extensions à Confirmer<br>(tonnes/an)',
+                'forecasts_2029': 'Prévisions 2029-30<br>(tonnes/an)',
+                'total': 'TOTAL',
+                // Destinations
+                'destination_countries': 'Pays de destination',
+                'exported_tonnes': 'Tonnes exportées',
+                'total_transactions': 'Transactions totales',
+                'top_destination_countries': 'Top pays destinations',
+                'filter_exporter': 'Filtrer par Exportateur:',
+                'all_exporters': 'Tous les exportateurs',
+                'product_types': 'Types de Produits:',
+                'all_products': 'Tous les produits',
+                'packaging_types': "Types d'Emballages:",
+                'all_packaging': 'Tous les emballages',
+                'recipients': 'Destinataires:',
+                'all_recipients': 'Tous les destinataires',
+                'declarants': 'Déclarants:',
+                'all_declarants': 'Tous les déclarants',
+                'top_10_countries': 'Top 10 des Pays de Destination',
+                'rank': 'Rang',
+                'country': 'Pays',
+                'total_weight_tonnes': 'Poids Total (tonnes)',
+                'num_transactions': 'Nombre de Transactions',
+                'top_exporter': 'Top Exportateur',
+                'top_declarant': 'Top Déclarant',
+                // Tabs
+                'tab_zes': 'ZES',
+                'tab_transformation': 'Transformation',
+                'tab_destinations': 'Destinations',
+                'tab_cartes': 'Cartes',
+                // Titles
+                'title_zes': 'Zones Économiques Spéciales de Côte d\'Ivoire',
+                'title_transformation': 'Capacités de Transformation du Cacao',
+                'title_destinations': 'Destinations des Exportations',
+                'title_cartes': 'Cartographie des Risques',
+                // Loading
+                'loading_transformation': 'Chargement des données de transformation...',
+                'loading_destinations': 'Chargement des données de destinations...',
+                'loading_cartes': 'Chargement de la cartographie...',
+                // ZES content
+                'zes_presentation': 'Présentation du ZES',
+                'zes_intro': 'La Zone Économique Spéciale (ZES) de San Pedro est une infrastructure stratégique pour la transformation et l\'exportation des produits agricoles.',
+                'zes_services': 'Services Offerts',
+                'zes_rubber': 'Industrie du caoutchouc: Pneumatiques et produits dérivés',
+                'zes_cassava': 'Transformation du manioc: Amidon, farine, bioéthanol',
+                'zes_shea': 'Industrie du karité: Cosmétiques et agroalimentaire',
+                'zes_cocoa': 'Cacao et dérivés: Chocolaterie et poudre de cacao',
+                // Risk analysis
+                'main_destinations': 'Principales destinations du cacao ivoirien (2024)',
+                'according_to_data': 'Selon les données officielles, les principales destinations sont:',
+                'risk_analysis_title': 'Analyse des Risques par Pays de Destination',
+                'country_col': 'Pays',
+                'volume_share': 'Part Volume',
+                'main_risks': 'Principaux Risques',
+                'risk_level': 'Niveau Risque',
+                'high_risk_countries': 'Pays à risque élevé',
+                'medium_risk_countries': 'Pays à risque moyen',
+                'low_risk_countries': 'Pays à risque faible',
+                'volume_top_countries': 'Volume top 6 pays',
+                // Risk categories
+                'eu_regulatory_risks': 'Risques Réglementaires Européens',
+                'exchange_risks': 'Risques de Change',
+                'climate_risks': 'Risques Climatiques',
+                'market_risks': 'Risques de Marché',
+                'geopolitical_risks': 'Risques Géopolitiques',
+                'recommendations': 'Recommandations',
+                // Risk synthesis
+                'risk_synthesis_title': 'Synthèse des risques secteur cacao 2024-2025',
+                'favorable_context': 'Contexte favorable:',
+                'favorable_context_desc': 'Prix historiquement élevés (+95% vs 2023) offrent des marges importantes aux exportateurs.',
+                'regulatory_challenges': 'Défis réglementaires:',
+                'regulatory_challenges_desc': 'L\'entrée en vigueur de l\'EUDR en 2025 nécessite des investissements majeurs en traçabilité.',
+                'geographic_diversification': 'Diversification géographique:',
+                'geographic_diversification_desc': 'La répartition sur 55+ pays limite les risques de concentration.',
+                'transformation_opportunities': 'Opportunités transformation:',
+                'transformation_opportunities_desc': 'Les ZES offrent des perspectives de valorisation locale et de réduction des risques export.',
+                // Projections analysis
+                'projections_analysis': 'Analyse des projections',
+                'projections_intro': 'Le secteur du broyage de cacao ivoirien affiche de fortes ambitions de croissance avec plusieurs projets d\'expansion de capacité:',
+                'major_growth': 'Croissance majeure:',
+                'major_growth_desc': 'La capacité de broyage passera de 980 000 à 1 453 000 tonnes/an d\'ici 2027-28 (+48,3%)',
+                'confirmed_projects': 'Projets confirmés:',
+                'confirmed_projects_desc': '473 000 tonnes de nouveaux projets prévus d\'ici 2027, incluant 10 nouveaux acteurs',
+                'horizon_2030': 'Horizon 2030:',
+                'horizon_2030_desc': 'Capacité totale atteindra 1 809 000 tonnes/an, approchant les niveaux de production',
+                'utilization_challenge': 'Défi utilisation:',
+                'utilization_challenge_desc': 'Le taux d\'utilisation actuel de 74,4% devra s\'améliorer pour justifier les investissements',
+                // Market analysis
+                'market_analysis': 'Analyse des marchés de destination',
+                'export_concentration': 'Concentration export:',
+                'export_concentration_desc': 'Les Pays-Bas (30,3%) et la France (11,1%) représentent plus de 40% des exportations',
+                'destinations_count': 'Nombre de destinations:',
+                'destinations_count_desc': '55 pays de destination assurent une bonne diversification des risques',
+                'eudr_compliance': 'Conformité EUDR:',
+                'eudr_compliance_desc': '56,5% des exports vont vers l\'Europe, nécessitant une traçabilité complète d\'ici 2025',
+                'growth_opportunities': 'Opportunités de croissance:',
+                'growth_opportunities_desc': 'Les marchés asiatiques (Malaisie 3,9%, Indonésie 2,1%) offrent un potentiel de développement',
+                // Risk descriptions
+                'netherlands_desc': 'Hub européen de transformation',
+                'france_desc': 'Marché traditionnel et chocolaterie',
+                'usa_desc': 'Marché de consommation majeur',
+                'spain_desc': 'Transformation européenne',
+                'belgium_desc': 'Chocolaterie premium',
+                'germany_desc': 'Industrie chocolatière développée',
+                // Risk levels
+                'risk_high': 'Élevé',
+                'risk_medium': 'Moyen',
+                'risk_low': 'Faible',
+                // Risk details
+                'netherlands_risks': 'Hub européen, EUDR 2025, Fluctuations EUR/USD, Standards durabilité',
+                'france_risks': 'EUDR 2025, Réglementation européenne, Concurrence chocolatiers',
+                'usa_risks': 'Tensions commerciales, Volatilité USD, Réglementation FDA',
+                'spain_risks': 'EUDR 2025, Instabilité économique, Standards UE',
+                'belgium_risks': 'Chocolaterie premium, EUDR 2025, Stabilité EUR',
+                'germany_risks': 'EUDR 2025, Standards qualité élevés, Concurrence industrielle',
+                'malaysia_risks': 'Transformation locale, Instabilité politique, Fluctuations MYR',
+                'uk_risks': 'Brexit, Fluctuations GBP, Standards post-UE',
+                // Risk synthesis content
+                'favorable_context_full': 'Prix historiquement élevés (+95% vs 2023) offrent des marges importantes aux exportateurs.',
+                'regulatory_challenges_full': 'L\\\'entrée en vigueur de l\\\'EUDR en 2025 nécessite des investissements majeurs en traçabilité.',
+                'geographic_diversification_full': 'La répartition sur 55+ pays limite les risques de concentration.',
+                'transformation_opportunities_full': 'Les ZES offrent des perspectives de valorisation locale et de réduction des risques export.',
+                // Risk cards detailed content
+                'eudr_2025': 'EUDR 2025:',
+                'eudr_regulation': 'Réglementation anti-déforestation obligatoire',
+                'impact_label': 'Impact:',
+                'traceability_required': 'Traçabilité complète exigée pour tous les lots',
+                'sanctions_label': 'Sanctions:',
+                'fines_ca': 'Amendes jusqu\\'à 4% du CA',
+                'preparation_label': 'Préparation:',
+                'gps_systems': 'Systèmes de traçabilité GPS requis',
+                'eur_usd_label': 'EUR/USD:',
+                'volatility_2022': 'Volatilité accrue depuis 2022',
+                'gbp_label': 'GBP:',
+                'brexit_instability': 'Instabilité post-Brexit',
+                'variable_margins': 'Marges variables selon parité',
+                'hedge_label': 'Hedge:',
+                'currency_coverage': 'Couverture de change recommandée',
+                'drought_label': 'Sécheresse:',
+                'quality_volume_impact': 'Impact sur qualité et volume',
+                'diseases_label': 'Maladies:',
+                'swollen_shoot': 'Swollen shoot, pourriture brune',
+                'transport_label': 'Transport:',
+                'storage_conditions': 'Conditions de stockage critiques',
+                'insurance_label': 'Assurance:',
+                'climate_coverage': 'Couverture climatique essentielle',
+                'price_volatility_label': 'Volatilité prix:',
+                'price_increase_2024': '+95% en 2024 vs 2023',
+                'speculation_label': 'Spéculation:',
+                'investment_funds': 'Fonds d\\'investissement actifs',
+                'stocks_label': 'Stocks:',
+                'historically_low': 'Niveaux historiquement bas',
+                'demand_label': 'Demande:',
+                'emerging_markets': 'Croissance soutenue marchés émergents',
+                'usa_china_tensions_label': 'Tensions USA-Chine:',
+                'trade_flows_impact': 'Impact sur flux commerciaux',
+                'regional_stability_label': 'Stabilité régionale:',
+                'elections_2025': 'Élections 2025 en CI',
+                'maritime_transport_label': 'Transport maritime:',
+                'port_congestion': 'Congestion ports, pirates',
+                'sanctions_label_geo': 'Sanctions:',
+                'limited_secondary': 'Risques secondaires limités',
+                'diversification_label': 'Diversification:',
+                'multiple_destinations': 'Répartir sur plusieurs destinations',
+                'traceability_label': 'Traçabilité:',
+                'gps_blockchain': 'Investir dans systèmes GPS/blockchain',
+                'contracts_label': 'Contrats:',
+                'force_majeure': 'Clauses de force majeure renforcées',
+                'multi_risk_coverage': 'Couverture multi-risques adaptée'
+            },
+            en: {
+                // Stats cards
+                'tonnes_year_installed': 'Tonnes/year installed',
+                'utilization_rate': 'Utilization rate',
+                'active_companies': 'Active companies',
+                'growth_2027': 'Projected growth 2027',
+                'company_recap': 'Company overview table',
+                'company': 'Company',
+                'group': 'Group',
+                'installed_capacity': 'Installed Capacity<br>(tonnes/year)',
+                'used_capacity': 'Used Capacity<br>(tonnes/year)',
+                'utilization': 'Utilization Rate',
+                'projects_confirm': 'Projects to Confirm<br>(tonnes/year)',
+                'forecasts_2027': '2027-28 Forecasts<br>(tonnes/year)',
+                'extensions_confirm': 'Extensions to Confirm<br>(tonnes/year)',
+                'forecasts_2029': '2029-30 Forecasts<br>(tonnes/year)',
+                'total': 'TOTAL',
+                // Destinations
+                'destination_countries': 'Destination countries',
+                'exported_tonnes': 'Exported tonnes',
+                'total_transactions': 'Total transactions',
+                'top_destination_countries': 'Top destination countries',
+                'filter_exporter': 'Filter by Exporter:',
+                'all_exporters': 'All exporters',
+                'product_types': 'Product Types:',
+                'all_products': 'All products',
+                'packaging_types': 'Packaging Types:',
+                'all_packaging': 'All packaging',
+                'recipients': 'Recipients:',
+                'all_recipients': 'All recipients',
+                'declarants': 'Declarants:',
+                'all_declarants': 'All declarants',
+                'top_10_countries': 'Top 10 Destination Countries',
+                'rank': 'Rank',
+                'country': 'Country',
+                'total_weight_tonnes': 'Total Weight (tonnes)',
+                'num_transactions': 'Number of Transactions',
+                'top_exporter': 'Top Exporter',
+                'top_declarant': 'Top Declarant',
+                // Tabs
+                'tab_zes': 'SEZ',
+                'tab_transformation': 'Processing',
+                'tab_destinations': 'Destinations',
+                'tab_cartes': 'Maps',
+                // Titles
+                'title_zes': 'Special Economic Zones of Ivory Coast',
+                'title_transformation': 'Cocoa Processing Capacities',
+                'title_destinations': 'Export Destinations',
+                'title_cartes': 'Risk Mapping',
+                // Loading
+                'loading_transformation': 'Loading processing data...',
+                'loading_destinations': 'Loading destination data...',
+                'loading_cartes': 'Loading mapping...',
+                // ZES content
+                'zes_presentation': 'SEZ Presentation',
+                'zes_intro': 'The Special Economic Zone (SEZ) of San Pedro is a strategic infrastructure for the processing and export of agricultural products.',
+                'zes_services': 'Services Offered',
+                'zes_rubber': 'Rubber industry: Tires and derived products',
+                'zes_cassava': 'Cassava processing: Starch, flour, bioethanol',
+                'zes_shea': 'Shea industry: Cosmetics and food processing',
+                'zes_cocoa': 'Cocoa and derivatives: Chocolate and cocoa powder',
+                // Risk analysis
+                'main_destinations': 'Main destinations of Ivorian cocoa (2024)',
+                'according_to_data': 'According to official data, the main destinations are:',
+                'risk_analysis_title': 'Risk Analysis by Destination Country',
+                'country_col': 'Country',
+                'volume_share': 'Volume Share',
+                'main_risks': 'Main Risks',
+                'risk_level': 'Risk Level',
+                'high_risk_countries': 'High risk countries',
+                'medium_risk_countries': 'Medium risk countries',
+                'low_risk_countries': 'Low risk countries',
+                'volume_top_countries': 'Volume top 6 countries',
+                // Risk categories
+                'eu_regulatory_risks': 'European Regulatory Risks',
+                'exchange_risks': 'Exchange Rate Risks',
+                'climate_risks': 'Climate Risks',
+                'market_risks': 'Market Risks',
+                'geopolitical_risks': 'Geopolitical Risks',
+                'recommendations': 'Recommendations',
+                // Risk synthesis
+                'risk_synthesis_title': 'Cocoa sector risk summary 2024-2025',
+                'favorable_context': 'Favorable context:',
+                'favorable_context_desc': 'Historically high prices (+95% vs 2023) offer significant margins to exporters.',
+                'regulatory_challenges': 'Regulatory challenges:',
+                'regulatory_challenges_desc': 'The entry into force of EUDR in 2025 requires major investments in traceability.',
+                'geographic_diversification': 'Geographic diversification:',
+                'geographic_diversification_desc': 'Distribution over 55+ countries limits concentration risks.',
+                'transformation_opportunities': 'Processing opportunities:',
+                'transformation_opportunities_desc': 'SEZs offer prospects for local value addition and export risk reduction.',
+                // Projections analysis
+                'projections_analysis': 'Projections analysis',
+                'projections_intro': 'The Ivorian cocoa processing sector shows strong growth ambitions with several capacity expansion projects:',
+                'major_growth': 'Major growth:',
+                'major_growth_desc': 'Processing capacity will increase from 980,000 to 1,453,000 tonnes/year by 2027-28 (+48.3%)',
+                'confirmed_projects': 'Confirmed projects:',
+                'confirmed_projects_desc': '473,000 tonnes of new projects planned by 2027, including 10 new players',
+                'horizon_2030': 'Horizon 2030:',
+                'horizon_2030_desc': 'Total capacity will reach 1,809,000 tonnes/year, approaching production levels',
+                'utilization_challenge': 'Utilization challenge:',
+                'utilization_challenge_desc': 'Current utilization rate of 74.4% must improve to justify investments',
+                // Market analysis
+                'market_analysis': 'Destination market analysis',
+                'export_concentration': 'Export concentration:',
+                'export_concentration_desc': 'The Netherlands (30.3%) and France (11.1%) represent over 40% of exports',
+                'destinations_count': 'Number of destinations:',
+                'destinations_count_desc': '55 destination countries ensure good risk diversification',
+                'eudr_compliance': 'EUDR compliance:',
+                'eudr_compliance_desc': '56.5% of exports go to Europe, requiring full traceability by 2025',
+                'growth_opportunities': 'Growth opportunities:',
+                'growth_opportunities_desc': 'Asian markets (Malaysia 3.9%, Indonesia 2.1%) offer development potential',
+                // Risk descriptions
+                'netherlands_desc': 'European processing hub',
+                'france_desc': 'Traditional market and chocolate industry',
+                'usa_desc': 'Major consumer market',
+                'spain_desc': 'European processing',
+                'belgium_desc': 'Premium chocolate industry',
+                'germany_desc': 'Developed chocolate industry',
+                // Risk levels
+                'risk_high': 'High',
+                'risk_medium': 'Medium',
+                'risk_low': 'Low',
+                // Risk details
+                'netherlands_risks': 'European hub, EUDR 2025, EUR/USD fluctuations, Sustainability standards',
+                'france_risks': 'EUDR 2025, European regulations, Chocolate industry competition',
+                'usa_risks': 'Trade tensions, USD volatility, FDA regulations',
+                'spain_risks': 'EUDR 2025, Economic instability, EU standards',
+                'belgium_risks': 'Premium chocolate, EUDR 2025, EUR stability',
+                'germany_risks': 'EUDR 2025, High quality standards, Industrial competition',
+                'malaysia_risks': 'Local processing, Political instability, MYR fluctuations',
+                'uk_risks': 'Brexit, GBP fluctuations, Post-EU standards',
+                // Risk synthesis content
+                'favorable_context_full': 'Historically high prices (+95% vs 2023) offer significant margins to exporters.',
+                'regulatory_challenges_full': 'The entry into force of EUDR in 2025 requires major investments in traceability.',
+                'geographic_diversification_full': 'Distribution over 55+ countries limits concentration risks.',
+                'transformation_opportunities_full': 'SEZs offer prospects for local value addition and export risk reduction.',
+                // Risk cards detailed content
+                'eudr_2025': 'EUDR 2025:',
+                'eudr_regulation': 'Mandatory anti-deforestation regulation',
+                'impact_label': 'Impact:',
+                'traceability_required': 'Complete traceability required for all batches',
+                'sanctions_label': 'Sanctions:',
+                'fines_ca': 'Fines up to 4% of turnover',
+                'preparation_label': 'Preparation:',
+                'gps_systems': 'GPS traceability systems required',
+                'eur_usd_label': 'EUR/USD:',
+                'volatility_2022': 'Increased volatility since 2022',
+                'gbp_label': 'GBP:',
+                'brexit_instability': 'Post-Brexit instability',
+                'variable_margins': 'Variable margins according to parity',
+                'hedge_label': 'Hedge:',
+                'currency_coverage': 'Currency hedging recommended',
+                'drought_label': 'Drought:',
+                'quality_volume_impact': 'Impact on quality and volume',
+                'diseases_label': 'Diseases:',
+                'swollen_shoot': 'Swollen shoot, brown rot',
+                'transport_label': 'Transport:',
+                'storage_conditions': 'Critical storage conditions',
+                'insurance_label': 'Insurance:',
+                'climate_coverage': 'Climate coverage essential',
+                'price_volatility_label': 'Price volatility:',
+                'price_increase_2024': '+95% in 2024 vs 2023',
+                'speculation_label': 'Speculation:',
+                'investment_funds': 'Active investment funds',
+                'stocks_label': 'Stocks:',
+                'historically_low': 'Historically low levels',
+                'demand_label': 'Demand:',
+                'emerging_markets': 'Sustained growth in emerging markets',
+                'usa_china_tensions_label': 'USA-China tensions:',
+                'trade_flows_impact': 'Impact on trade flows',
+                'regional_stability_label': 'Regional stability:',
+                'elections_2025': '2025 elections in CI',
+                'maritime_transport_label': 'Maritime transport:',
+                'port_congestion': 'Port congestion, pirates',
+                'sanctions_label_geo': 'Sanctions:',
+                'limited_secondary': 'Limited secondary risks',
+                'diversification_label': 'Diversification:',
+                'multiple_destinations': 'Spread across multiple destinations',
+                'traceability_label': 'Traceability:',
+                'gps_blockchain': 'Invest in GPS/blockchain systems',
+                'contracts_label': 'Contracts:',
+                'force_majeure': 'Reinforced force majeure clauses',
+                'multi_risk_coverage': 'Adapted multi-risk coverage'
+            }
+        };
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data for specific tabs
+            if (tabName === 'zes' && !zesMap) {
+                initZesMap();
+            } else if (tabName === 'transformation' && !broyageData) {
+                loadTransformationTab();
+            } else if (tabName === 'destinations' && !allData) {
+                loadDestinationsTab();
+            } else if (tabName === 'cartes') {
+                loadCartesTab();
+            }
+        }
+
+        function initZesMap() {
+            setTimeout(() => {
+                zesMap = L.map('zesMap').setView([7.5399, -5.5471], 7);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(zesMap);
+
+                // ZES locations
+                const zesLocations = [
+                    {
+                        name: "ZEI Arise Abidjan PK24",
+                        coords: [5.9280, -4.0266],
+                        info: "Akoupé-Zeudji, 444 ha<br/>Investissement: 107 Md FCFA<br/>Statut: En développement"
+                    },
+                    {
+                        name: "ZEI San Pedro",
+                        coords: [4.7467, -6.6364],
+                        info: "Transformation agricole<br/>Proximité 2ème port<br/>Statut: Zone de classe mondiale"
+                    },
+                    {
+                        name: "ZEI Ferkessédougou",
+                        coords: [9.5981, -5.1958],
+                        info: "Nord Côte d'Ivoire<br/>Agro-industrie<br/>Statut: Phase de développement"
+                    },
+                    {
+                        name: "ZES Transfrontalière Korhogo",
+                        coords: [9.4581, -5.6296],
+                        info: "Zone commune CI-Mali-BF<br/>Commerce régional<br/>Statut: Initiative lancée"
+                    }
+                ];
+
+                zesLocations.forEach(zes => {
+                    const marker = L.marker(zes.coords).addTo(zesMap);
+                    marker.bindPopup(`<b>${zes.name}</b><br/>${zes.info}`);
+                });
+
+                // Add Abidjan and major cities for reference
+                L.marker([5.3364, -4.0267]).addTo(zesMap)
+                    .bindPopup('<b>Abidjan</b><br/>Capital économique');
+                
+            }, 100);
+        }
+
+        function loadTransformationTab() {
+            fetch('./dynamic_data_enriched.json')
+                .then(response => response.json())
+                .then(data => {
+                    broyageData = data.broyage_analysis;
+                    allData = data;
+                    renderTransformationTab();
+                })
+                .catch(error => {
+                    document.getElementById('transformation').innerHTML = 
+                        '<div class="error">Erreur de chargement des données de transformation: ' + error.message + '</div>';
+                });
+        }
+
+        function renderTransformationTab() {
+            const tab = document.getElementById('transformation');
+            
+            // Get all companies including the ones with zero installed capacity
+            const companies = broyageData.companies || [];
+            const totalInstalled = companies.reduce((sum, c) => sum + (c.capacite_installee || 0), 0);
+            const totalUsed = companies.reduce((sum, c) => sum + (c.capacite_utilisee || 0), 0);
+            const totalProjects = companies.reduce((sum, c) => sum + (c.projets_confirmer || 0), 0);
+            const total2027 = companies.reduce((sum, c) => sum + (c.previsions_2027_28 || 0), 0);
+            const totalExtensions = companies.reduce((sum, c) => sum + (c.extensions_confirmer || 0), 0);
+            const total2029 = 1809000; // Fixed total as requested
+            const utilizationRate = totalInstalled > 0 ? (totalUsed / totalInstalled * 100) : 0;
+
+            tab.innerHTML = `
+                <h2>${currentLang === 'fr' ? 'Capacités de Transformation du Cacao' : 'Cocoa Processing Capacities'}</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>${(totalInstalled/1000).toFixed(0)}K</h3>
+                        <p>${t('tonnes_year_installed')}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${utilizationRate.toFixed(1)}%</h3>
+                        <p>${t('utilization_rate')}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${companies.length}</h3>
+                        <p>${t('active_companies')}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>+${((total2027-totalInstalled)/totalInstalled*100).toFixed(1)}%</h3>
+                        <p>${t('growth_2027')}</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3>${t('company_recap')}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>${t('company')}</th>
+                                <th>${t('group')}</th>
+                                <th>${t('installed_capacity')}</th>
+                                <th>${t('used_capacity')}</th>
+                                <th>${t('utilization')}</th>
+                                <th>${t('projects_confirm')}</th>
+                                <th>${t('forecasts_2027')}</th>
+                                <th>${t('extensions_confirm')}</th>
+                                <th>${t('forecasts_2029')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${companies.map(company => {
+                                const utilRate = company.capacite_installee > 0 ? 
+                                    (company.capacite_utilisee / company.capacite_installee * 100).toFixed(1) : '0.0';
+                                return `
+                                    <tr>
+                                        <td><strong>${company.societe}</strong></td>
+                                        <td>${company.groupe || '-'}</td>
+                                        <td>${company.capacite_installee.toLocaleString()}</td>
+                                        <td>${company.capacite_utilisee.toLocaleString()}</td>
+                                        <td>${utilRate}%</td>
+                                        <td>${company.projets_confirmer > 0 ? company.projets_confirmer.toLocaleString() : '-'}</td>
+                                        <td>${company.previsions_2027_28 > 0 ? company.previsions_2027_28.toLocaleString() : '-'}</td>
+                                        <td>${company.extensions_confirmer > 0 ? company.extensions_confirmer.toLocaleString() : '-'}</td>
+                                        <td>${company.previsions_2029_30 > 0 ? company.previsions_2029_30.toLocaleString() : '-'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                            <tr style="background: #f0f0f0; font-weight: bold;">
+                                <td>${t('total')}</td>
+                                <td>-</td>
+                                <td>${totalInstalled.toLocaleString()}</td>
+                                <td>${totalUsed.toLocaleString()}</td>
+                                <td>${utilizationRate.toFixed(1)}%</td>
+                                <td>${totalProjects.toLocaleString()}</td>
+                                <td>${total2027.toLocaleString()}</td>
+                                <td>${totalExtensions.toLocaleString()}</td>
+                                <td>${total2029.toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="capacityChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="info-section">
+                    <h3>Analyse des projections</h3>
+                    <p><strong>Croissance 2027:</strong> Les capacités de broyage devraient augmenter de ${((total2027-totalInstalled)/totalInstalled*100).toFixed(1)}% d'ici 2027-28, passant de ${(totalInstalled/1000).toFixed(0)}K à ${(total2027/1000).toFixed(0)}K tonnes/an.</p>
+                    <p><strong>Horizon 2029:</strong> L'objectif à long terme vise ${(total2029/1000).toFixed(0)}K tonnes/an, soit une croissance totale de ${((total2029-totalInstalled)/totalInstalled*100).toFixed(1)}%.</p>
+                    <p><strong>Leaders du marché:</strong> Barry Callebaut (${(companies[0].capacite_installee/1000).toFixed(0)}K t/an), Cargill (${(companies[1].capacite_installee/1000).toFixed(0)}K t/an), et Olam (${(companies[2].capacite_installee/1000).toFixed(0)}K t/an) dominent le secteur.</p>
+                </div>
+            `;
+
+            // Create capacity chart
+            const ctx = document.getElementById('capacityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Capacité Installée', 'Capacité Utilisée', 'Prévisions 2027', 'Prévisions 2029'],
+                    datasets: [{
+                        label: 'Tonnes/an (milliers)',
+                        data: [totalInstalled/1000, totalUsed/1000, total2027/1000, total2029/1000],
+                        backgroundColor: [
+                            'rgba(30, 60, 114, 0.8)',
+                            'rgba(42, 82, 152, 0.8)',
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(30, 60, 114, 1)',
+                            'rgba(42, 82, 152, 1)',
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(118, 75, 162, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Capacité (milliers de tonnes/an)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution des Capacités de Broyage'
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadDestinationsTab() {
+            fetch('./dynamic_data_enriched.json')
+                .then(response => response.json())
+                .then(data => {
+                    allData = data;
+                    renderDestinationsTab();
+                })
+                .catch(error => {
+                    document.getElementById('destinations').innerHTML = 
+                        '<div class="error">Erreur de chargement des données: ' + error.message + '</div>';
+                });
+        }
+
+        function renderDestinationsTab() {
+            const tab = document.getElementById('destinations');
+            
+            // Mapping des codes pays vers les noms de pays
+            const countryCodeMapping = {
+                'NL': 'Pays-Bas', 'FR': 'France', 'US': 'États-Unis', 'ES': 'Espagne',
+                'BE': 'Belgique', 'DE': 'Allemagne', 'MY': 'Malaisie', 'GB': 'Royaume-Uni',
+                'CA': 'Canada', 'EE': 'Estonie', 'IT': 'Italie', 'ZA': 'Afrique du Sud',
+                'TR': 'Turquie', 'PL': 'Pologne', 'BR': 'Brésil', 'PT': 'Portugal',
+                'ID': 'Indonésie', 'AU': 'Australie', 'CN': 'Chine', 'MX': 'Mexique',
+                'IL': 'Israël', 'BG': 'Bulgarie', 'MA': 'Maroc', 'JP': 'Japon',
+                'EG': 'Égypte', 'QA': 'Qatar', 'LT': 'Lituanie', 'CM': 'Cameroun',
+                'UY': 'Uruguay', 'SN': 'Sénégal', 'RU': 'Russie', 'HR': 'Croatie',
+                'LV': 'Lettonie', 'NZ': 'Nouvelle-Zélande', 'IN': 'Inde', 'SA': 'Arabie Saoudite',
+                'VE': 'Venezuela', 'TN': 'Tunisie', 'KH': 'Cambodge', 'LB': 'Liban',
+                'SY': 'Syrie', 'CI': 'Côte d\'Ivoire', 'DZ': 'Algérie', 'CG': 'Congo',
+                'KE': 'Kenya', 'AE': 'Émirats Arabes Unis', 'VN': 'Vietnam', 'GA': 'Gabon',
+                'MG': 'Madagascar', '99': 'Non spécifié'
+            };
+            
+            // Calculate by countries
+            const countryCounts = {};
+            const countryWeights = {};
+            const countryExporters = {};
+            const countryDeclarants = {};
+            
+            allData.records.forEach(record => {
+                const destCode = record.destination || '99';
+                const country = countryCodeMapping[destCode] || 'Autres pays';
+                const exporter = record.exportateur_simple || 'Non spécifié';
+                const declarant = record.declarant_simple || 'Non spécifié';
+                
+                countryCounts[country] = (countryCounts[country] || 0) + 1;
+                countryWeights[country] = (countryWeights[country] || 0) + (record.poids_net || 0);
+                
+                if (!countryExporters[country]) countryExporters[country] = {};
+                if (!countryDeclarants[country]) countryDeclarants[country] = {};
+                
+                countryExporters[country][exporter] = (countryExporters[country][exporter] || 0) + (record.poids_net || 0);
+                countryDeclarants[country][declarant] = (countryDeclarants[country][declarant] || 0) + (record.poids_net || 0);
+            });
+
+            const topCountries = Object.entries(countryWeights)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            tab.innerHTML = `
+                <h2>${currentLang === 'fr' ? 'Destinations des Exportations par Pays' : 'Export Destinations by Country'}</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>${Object.keys(countryCounts).length}</h3>
+                        <p>${t('destination_countries')}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${(allData.metadata.total_weight/1000000).toFixed(1)}M</h3>
+                        <p>${t('exported_tonnes')}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${allData.metadata.total_records.toLocaleString()}</h3>
+                        <p>${t('total_transactions')}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${topCountries.length}</h3>
+                        <p>${t('top_destination_countries')}</p>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>${t('filter_exporter')}</label>
+                        <select id="expFilter" onchange="filterDestinations()">
+                            <option value="">${t('all_exporters')}</option>
+                            ${allData.filters.exportateurs.map(exp => 
+                                `<option value="${exp}">${exp}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>${t('product_types')}</label>
+                        <select id="prodFilter" onchange="filterDestinations()">
+                            <option value="">${t('all_products')}</option>
+                            ${allData.filters.produits.map(prod => 
+                                `<option value="${prod}">${prod}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>${t('packaging_types')}</label>
+                        <select id="packFilter" onchange="filterDestinations()">
+                            <option value="">${t('all_packaging')}</option>
+                            ${allData.filters.emballages.map(pack => 
+                                `<option value="${pack}">${pack}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>${t('recipients')}</label>
+                        <select id="destFilter" onchange="filterDestinations()">
+                            <option value="">${t('all_recipients')}</option>
+                            ${allData.filters.destinataires.map(dest => 
+                                `<option value="${dest}">${dest}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>${t('declarants')}</label>
+                        <select id="declFilter" onchange="filterDestinations()">
+                            <option value="">${t('all_declarants')}</option>
+                            ${allData.filters.declarants.map(decl => 
+                                `<option value="${decl}">${decl}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3>${t('top_10_countries')}</h3>
+                    <table id="destinationsTable">
+                        <thead>
+                            <tr>
+                                <th>${t('rank')}</th>
+                                <th>${t('country')}</th>
+                                <th>${t('total_weight_tonnes')}</th>
+                                <th>${t('num_transactions')}</th>
+                                <th>${t('top_exporter')}</th>
+                                <th>${t('top_declarant')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${topCountries.map((country, index) => {
+                                const topExporter = Object.entries(countryExporters[country[0]])
+                                    .sort((a, b) => b[1] - a[1])[0];
+                                const topDeclarant = Object.entries(countryDeclarants[country[0]])
+                                    .sort((a, b) => b[1] - a[1])[0];
+                                return `
+                                    <tr>
+                                        <td><strong>#${index + 1}</strong></td>
+                                        <td><strong>${country[0]}</strong></td>
+                                        <td>${(country[1]/1000).toLocaleString()} t</td>
+                                        <td>${countryCounts[country[0]].toLocaleString()}</td>
+                                        <td>${topExporter ? topExporter[0] : '-'}</td>
+                                        <td>${topDeclarant ? topDeclarant[0] : '-'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="destinationsChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="info-section">
+                    <h3>Analyse des marchés de destination</h3>
+                    <p><strong>Premier marché:</strong> ${topCountries[0][0]} représente ${((topCountries[0][1]/allData.metadata.total_weight)*100).toFixed(1)}% des exportations totales.</p>
+                    <p><strong>Concentration:</strong> Les 5 premiers pays représentent ${((topCountries.slice(0,5).reduce((sum, country) => sum + country[1], 0)/allData.metadata.total_weight)*100).toFixed(1)}% du volume total.</p>
+                    <p><strong>Diversification:</strong> ${Object.keys(countryCounts).length} pays de destination, avec une forte concentration sur l'Europe et l'Asie.</p>
+                </div>
+            `;
+
+            // Create destinations chart (will be updated dynamically)
+            createDestinationsChart(topCountries);
+        }
+
+        // Global chart variable
+        let destinationsChart = null;
+        
+        // Professional color palette
+        const professionalColors = [
+            '#2c3e50', // Dark blue-grey
+            '#34495e', // Slate grey
+            '#3498db', // Blue
+            '#2980b9', // Darker blue
+            '#16a085', // Teal
+            '#27ae60', // Green
+            '#f39c12', // Orange
+            '#e67e22', // Darker orange
+            '#9b59b6', // Purple
+            '#8e44ad'  // Darker purple
+        ];
+        
+        function createDestinationsChart(countryData) {
+            const ctx = document.getElementById('destinationsChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (destinationsChart) {
+                destinationsChart.destroy();
+            }
+            
+            const chartData = countryData.slice(0, 8);
+            
+            destinationsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: chartData.map(country => country[0]),
+                    datasets: [{
+                        data: chartData.map(country => country[1]/1000),
+                        backgroundColor: professionalColors.slice(0, chartData.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: currentLang === 'fr' ? 'Répartition des Volumes par Pays (milliers de tonnes)' : 'Volume Distribution by Country (thousands of tonnes)',
+                            color: '#2c3e50',
+                            font: {
+                                size: 16,
+                                weight: 'bold',
+                                family: 'Arial'
+                            }
+                        },
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#2c3e50',
+                                font: {
+                                    family: 'Arial'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label;
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value.toLocaleString()}k t (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function filterDestinations() {
+            const destFilter = document.getElementById('destFilter').value;
+            const expFilter = document.getElementById('expFilter').value;
+            const prodFilter = document.getElementById('prodFilter').value;
+            const packFilter = document.getElementById('packFilter').value;
+            const declFilter = document.getElementById('declFilter').value;
+
+            filteredRecords = allData.records.filter(record => {
+                return (
+                    (!destFilter || record.destinataire_simple === destFilter) &&
+                    (!expFilter || record.exportateur_simple === expFilter) &&
+                    (!prodFilter || record.produit_simple === prodFilter) &&
+                    (!packFilter || record.emballage_simple === packFilter) &&
+                    (!declFilter || record.declarant_simple === declFilter)
+                );
+            });
+
+            updateDestinationsTable();
+        }
+
+        function updateDestinationsTable() {
+            const records = filteredRecords.length > 0 ? filteredRecords : allData.records;
+            
+            // Country code mapping
+            const countryCodeMapping = {
+                'NL': 'Pays-Bas', 'FR': 'France', 'US': 'États-Unis', 'ES': 'Espagne',
+                'BE': 'Belgique', 'DE': 'Allemagne', 'MY': 'Malaisie', 'GB': 'Royaume-Uni',
+                'CA': 'Canada', 'EE': 'Estonie', 'IT': 'Italie', 'ZA': 'Afrique du Sud',
+                'TR': 'Turquie', 'PL': 'Pologne', 'BR': 'Brésil', 'PT': 'Portugal',
+                'ID': 'Indonésie', 'AU': 'Australie', 'CN': 'Chine', 'MX': 'Mexique',
+                'IL': 'Israël', 'BG': 'Bulgarie', 'MA': 'Maroc', 'JP': 'Japon',
+                'EG': 'Égypte', 'QA': 'Qatar', 'LT': 'Lituanie', 'CM': 'Cameroun',
+                'UY': 'Uruguay', 'SN': 'Sénégal', 'RU': 'Russie', 'HR': 'Croatie',
+                'LV': 'Lettonie', 'NZ': 'Nouvelle-Zélande', 'IN': 'Inde', 'SA': 'Arabie Saoudite',
+                'VE': 'Venezuela', 'TN': 'Tunisie', 'KH': 'Cambodge', 'LB': 'Liban',
+                'SY': 'Syrie', 'CI': 'Côte d\'Ivoire', 'DZ': 'Algérie', 'CG': 'Congo',
+                'KE': 'Kenya', 'AE': 'Émirats Arabes Unis', 'VN': 'Vietnam', 'GA': 'Gabon',
+                'MG': 'Madagascar', '99': 'Non spécifié'
+            };
+            
+            const countryCounts = {};
+            const countryWeights = {};
+            const countryExporters = {};
+            const countryDeclarants = {};
+            
+            records.forEach(record => {
+                const destCode = record.destination || '99';
+                const country = countryCodeMapping[destCode] || 'Autres pays';
+                const exporter = record.exportateur_simple || 'Non spécifié';
+                const declarant = record.declarant_simple || 'Non spécifié';
+                
+                countryCounts[country] = (countryCounts[country] || 0) + 1;
+                countryWeights[country] = (countryWeights[country] || 0) + (record.poids_net || 0);
+                
+                if (!countryExporters[country]) countryExporters[country] = {};
+                if (!countryDeclarants[country]) countryDeclarants[country] = {};
+                
+                countryExporters[country][exporter] = (countryExporters[country][exporter] || 0) + (record.poids_net || 0);
+                countryDeclarants[country][declarant] = (countryDeclarants[country][declarant] || 0) + (record.poids_net || 0);
+            });
+
+            const topCountries = Object.entries(countryWeights)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const tbody = document.querySelector('#destinationsTable tbody');
+            tbody.innerHTML = topCountries.map((country, index) => {
+                const topExporter = Object.entries(countryExporters[country[0]])
+                    .sort((a, b) => b[1] - a[1])[0];
+                const topDeclarant = Object.entries(countryDeclarants[country[0]])
+                    .sort((a, b) => b[1] - a[1])[0];
+                return `
+                    <tr>
+                        <td><strong>#${index + 1}</strong></td>
+                        <td><strong>${country[0]}</strong></td>
+                        <td>${(country[1]/1000).toLocaleString()} t</td>
+                        <td>${countryCounts[country[0]].toLocaleString()}</td>
+                        <td>${topExporter ? topExporter[0] : '-'}</td>
+                        <td>${topDeclarant ? topDeclarant[0] : '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Update chart dynamically with filtered data
+            createDestinationsChart(topCountries);
+        }
+
+        function loadCartesTab() {
+            renderCartesTab();
+        }
+
+        function renderCartesTab() {
+            const tab = document.getElementById('cartes');
+            
+            // Top destination countries with risks (translated based on current language)
+            const countriesRisks = [
+                {
+                    name: currentLang === 'fr' ? "Pays-Bas" : "Netherlands",
+                    volume: "30.3%",
+                    risks: t('netherlands_risks'),
+                    level: t('risk_medium')
+                },
+                {
+                    name: currentLang === 'fr' ? "France" : "France",
+                    volume: "11.1%",
+                    risks: t('france_risks'),
+                    level: t('risk_low')
+                },
+                {
+                    name: currentLang === 'fr' ? "États-Unis" : "United States",
+                    volume: "9.4%",
+                    risks: t('usa_risks'),
+                    level: t('risk_high')
+                },
+                {
+                    name: currentLang === 'fr' ? "Espagne" : "Spain",
+                    volume: "7.6%",
+                    risks: t('spain_risks'),
+                    level: t('risk_medium')
+                },
+                {
+                    name: currentLang === 'fr' ? "Belgique" : "Belgium",
+                    volume: "5.9%",
+                    risks: t('belgium_risks'),
+                    level: t('risk_low')
+                },
+                {
+                    name: currentLang === 'fr' ? "Allemagne" : "Germany",
+                    volume: "5.1%",
+                    risks: t('germany_risks'),
+                    level: t('risk_medium')
+                },
+                {
+                    name: currentLang === 'fr' ? "Malaisie" : "Malaysia",
+                    volume: "3.9%",
+                    risks: t('malaysia_risks'),
+                    level: t('risk_high')
+                },
+                {
+                    name: currentLang === 'fr' ? "Royaume-Uni" : "United Kingdom",
+                    volume: "3.8%",
+                    risks: t('uk_risks'),
+                    level: t('risk_high')
+                }
+            ];
+
+            tab.innerHTML = `
+                <h2 data-translate="title_cartes">${t('title_cartes')}</h2>
+                
+                <div class="map-container">
+                    <div id="riskMap" style="height: 100%;"></div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>${t('main_destinations')}</h3>
+                    <p>${t('according_to_data')}</p>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>${currentLang === 'fr' ? 'Pays-Bas' : 'Netherlands'} (30.3%)</strong> - ${t('netherlands_desc')}</li>
+                        <li><strong>${currentLang === 'fr' ? 'France' : 'France'} (11.1%)</strong> - ${t('france_desc')}</li>
+                        <li><strong>${currentLang === 'fr' ? 'États-Unis' : 'United States'} (9.4%)</strong> - ${t('usa_desc')}</li>
+                        <li><strong>${currentLang === 'fr' ? 'Espagne' : 'Spain'} (7.6%)</strong> - ${t('spain_desc')}</li>
+                        <li><strong>${currentLang === 'fr' ? 'Belgique' : 'Belgium'} (5.9%)</strong> - ${t('belgium_desc')}</li>
+                        <li><strong>${currentLang === 'fr' ? 'Allemagne' : 'Germany'} (5.1%)</strong> - ${t('germany_desc')}</li>
+                    </ul>
+                </div>
+
+                <div class="table-container">
+                    <h3>${t('risk_analysis_title')}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>${t('country_col')}</th>
+                                <th>${t('volume_share')}</th>
+                                <th>${t('main_risks')}</th>
+                                <th>${t('risk_level')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${countriesRisks.map(country => {
+                                const riskColor = country.level === t('risk_high') ? '#ff6b6b' : 
+                                                 country.level === t('risk_medium') ? '#feca57' : '#48cae4';
+                                return `
+                                    <tr>
+                                        <td><strong>${country.name}</strong></td>
+                                        <td>${country.volume}</td>
+                                        <td>${country.risks}</td>
+                                        <td style="color: ${riskColor}; font-weight: bold;">●  ${country.level}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);">
+                        <h3>3</h3>
+                        <p>${t('high_risk_countries')}</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);">
+                        <h3>3</h3>
+                        <p>${t('medium_risk_countries')}</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #48cae4 0%, #023e8a 100%);">
+                        <h3>2</h3>
+                        <p>${t('low_risk_countries')}</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #38d9a9 0%, #5f27cd 100%);">
+                        <h3>73.4%</h3>
+                        <p>${t('volume_top_countries')}</p>
+                    </div>
+                </div>
+
+                <div class="zes-grid">
+                    <div class="zes-card">
+                        <h4>${currentLang === 'fr' ? '🇪🇺' : '🇪🇺'} ${t('eu_regulatory_risks')}</h4>
+                        <p><strong>${t('eudr_2025')}</strong> ${t('eudr_regulation')}</p>
+                        <p><strong>${t('impact_label')}</strong> ${t('traceability_required')}</p>
+                        <p><strong>${t('sanctions_label')}</strong> ${t('fines_ca')}</p>
+                        <p><strong>${t('preparation_label')}</strong> ${t('gps_systems')}</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>${currentLang === 'fr' ? '💱' : '💱'} ${t('exchange_risks')}</h4>
+                        <p><strong>${t('eur_usd_label')}</strong> ${t('volatility_2022')}</p>
+                        <p><strong>${t('gbp_label')}</strong> ${t('brexit_instability')}</p>
+                        <p><strong>${t('impact_label')}</strong> ${t('variable_margins')}</p>
+                        <p><strong>${t('hedge_label')}</strong> ${t('currency_coverage')}</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>${t('climate_risks')}</h4>
+                        <p><strong>${t('drought_label')}</strong> ${t('quality_volume_impact')}</p>
+                        <p><strong>${t('diseases_label')}</strong> ${t('swollen_shoot')}</p>
+                        <p><strong>${t('transport_label')}</strong> ${t('storage_conditions')}</p>
+                        <p><strong>${t('insurance_label')}</strong> ${t('climate_coverage')}</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>${t('market_risks')}</h4>
+                        <p><strong>${t('price_volatility_label')}</strong> ${t('price_increase_2024')}</p>
+                        <p><strong>${t('speculation_label')}</strong> ${t('investment_funds')}</p>
+                        <p><strong>${t('stocks_label')}</strong> ${t('historically_low')}</p>
+                        <p><strong>${t('demand_label')}</strong> ${t('emerging_markets')}</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>${t('geopolitical_risks')}</h4>
+                        <p><strong>${t('usa_china_tensions_label')}</strong> ${t('trade_flows_impact')}</p>
+                        <p><strong>${t('regional_stability_label')}</strong> ${t('elections_2025')}</p>
+                        <p><strong>${t('maritime_transport_label')}</strong> ${t('port_congestion')}</p>
+                        <p><strong>${t('sanctions_label_geo')}</strong> ${t('limited_secondary')}</p>
+                    </div>
+
+                    <div class="zes-card">
+                        <h4>${t('recommendations')}</h4>
+                        <p><strong>${t('diversification_label')}</strong> ${t('multiple_destinations')}</p>
+                        <p><strong>${t('traceability_label')}</strong> ${t('gps_blockchain')}</p>
+                        <p><strong>${t('contracts_label')}</strong> ${t('force_majeure')}</p>
+                        <p><strong>${t('insurance_label')}</strong> ${t('multi_risk_coverage')}</p>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>${t('risk_synthesis_title')}</h3>
+                    <p><strong>${t('favorable_context')}</strong> ${t('favorable_context_full')}</p>
+                    <p><strong>${t('regulatory_challenges')}</strong> ${t('regulatory_challenges_full')}</p>
+                    <p><strong>${t('geographic_diversification')}</strong> ${t('geographic_diversification_full')}</p>
+                    <p><strong>${t('transformation_opportunities')}</strong> ${t('transformation_opportunities_full')}</p>
+                </div>
+            `;
+
+            // Initialize risk map
+            setTimeout(() => {
+                const riskMap = L.map('riskMap').setView([20, 0], 2);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(riskMap);
+
+                // Destination countries with coordinates and risk levels (updated data)
+                const destinations = [
+                    {
+                        country: "Pays-Bas",
+                        coords: [52.3676, 4.9041],
+                        volume: "30.3%",
+                        risk: "Moyen",
+                        color: "#feca57",
+                        details: "Hub européen • EUDR 2025 • Fluctuations EUR/USD"
+                    },
+                    {
+                        country: "France",
+                        coords: [46.2276, 2.2137],
+                        volume: "11.1%",
+                        risk: "Faible",
+                        color: "#48cae4",
+                        details: "Marché stable • EUDR 2025 • Commerce équitable"
+                    },
+                    {
+                        country: "États-Unis",
+                        coords: [39.8283, -98.5795],
+                        volume: "9.4%",
+                        risk: "Élevé",
+                        color: "#ff6b6b",
+                        details: "Tensions commerciales • Volatilité USD • Réglementation FDA"
+                    },
+                    {
+                        country: "Espagne",
+                        coords: [40.4637, -3.7492],
+                        volume: "7.6%",
+                        risk: "Moyen",
+                        color: "#feca57",
+                        details: "EUDR 2025 • Instabilité économique • Standards UE"
+                    },
+                    {
+                        country: "Belgique",
+                        coords: [50.5039, 4.4699],
+                        volume: "5.9%",
+                        risk: "Faible",
+                        color: "#48cae4",
+                        details: "Chocolaterie premium • EUDR 2025 • Stabilité EUR"
+                    },
+                    {
+                        country: "Allemagne",
+                        coords: [51.1657, 10.4515],
+                        volume: "5.1%",
+                        risk: "Moyen",
+                        color: "#feca57",
+                        details: "EUDR 2025 • Standards qualité élevés • Concurrence industrielle"
+                    },
+                    {
+                        country: "Malaisie",
+                        coords: [4.2105, 101.9758],
+                        volume: "3.9%",
+                        risk: "Élevé",
+                        color: "#ff6b6b",
+                        details: "Transformation locale • Instabilité politique • Fluctuations MYR"
+                    },
+                    {
+                        country: "Royaume-Uni",
+                        coords: [55.3781, -3.4360],
+                        volume: "3.8%",
+                        risk: "Élevé",
+                        color: "#ff6b6b",
+                        details: "Brexit • Fluctuations GBP • Standards post-UE"
+                    }
+                ];
+
+                destinations.forEach(dest => {
+                    const marker = L.circleMarker(dest.coords, {
+                        color: dest.color,
+                        weight: 3,
+                        fillColor: dest.color,
+                        fillOpacity: 0.6,
+                        radius: parseFloat(dest.volume) > 20 ? 15 : 
+                                parseFloat(dest.volume) > 10 ? 12 :
+                                parseFloat(dest.volume) > 5 ? 10 : 8
+                    }).addTo(riskMap);
+                    
+                    marker.bindPopup(`
+                        <b>${dest.country}</b><br/>
+                        <strong>Volume:</strong> ${dest.volume}<br/>
+                        <strong>Niveau de risque:</strong> <span style="color: ${dest.color};">●</span> ${dest.risk}<br/>
+                        <strong>Défis:</strong> ${dest.details}
+                    `);
+                });
+
+                // Add Côte d'Ivoire as source
+                L.marker([7.5399, -5.5471]).addTo(riskMap)
+                    .bindPopup('<b>Côte d\'Ivoire</b><br/>Source des exportations<br/>1.48M tonnes/an');
+                    
+            }, 200);
+        }
+
+        // Language switching function
+        function switchLanguage(lang) {
+            currentLang = lang;
+            
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update all elements with data-translate attributes
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+            
+            // Update all elements with language data
+            document.querySelectorAll('[data-fr][data-en]').forEach(element => {
+                element.textContent = element.getAttribute('data-' + lang);
+            });
+            
+            // Reload current tab content with new language
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab) {
+                const tabName = activeTab.getAttribute('onclick').match(/showTab\('(\w+)'\)/)[1];
+                if (tabName === 'transformation' && broyageData) {
+                    renderTransformationTab();
+                } else if (tabName === 'destinations' && allData) {
+                    renderDestinationsTab();
+                } else if (tabName === 'cartes') {
+                    renderCartesTab();
+                } else if (tabName === 'zes') {
+                    renderZesTab();
+                }
+            }
+        }
+
+        // Render ZES tab with language support
+        function renderZesTab() {
+            // The ZES tab content is static HTML, so we don't need to re-render it
+            // The map is already initialized
+        }
+
+        // Initialize ZES map on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initZesMap();
+        });
+    </script>
+</body>
+</html>
