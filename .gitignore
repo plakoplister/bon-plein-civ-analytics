@@ -13,6 +13,8 @@ __pycache__/
 *.png
 *.jpg
 *.jpeg
+# But keep the logo
+!WEBAPP_PUBLICATION/logo.PNG
 
 # MacOS
 .DS_Store
