@@ -400,9 +400,9 @@
             <div id="destinations" class="tab-content">
                 <h2 data-fr="Destinations des Exportations" data-en="Export Destinations">${t('title_destinations')}</h2>
                 <div id="destinations-summary" class="summary-stats" style="display: none;">
-                    <span class="stat-item">Total filtré: <strong id="dest-total-volume">0</strong> tonnes</span>
-                    <span class="stat-item">Valeur: <strong id="dest-total-value">0</strong> M FCFA</span>
-                    <span class="stat-item">Transactions: <strong id="dest-total-count">0</strong></span>
+                    <span class="stat-item" data-fr="Total filtré: " data-en="Filtered total: ">${t('filtered_total')} <strong id="dest-total-volume">0</strong> ${t('tonnes_unit')}</span>
+                    <span class="stat-item" data-fr="Valeur: " data-en="Value: ">${t('value_label')} <strong id="dest-total-value">0</strong> ${t('value_unit')}</span>
+                    <span class="stat-item" data-fr="Transactions: " data-en="Transactions: ">${t('transactions_label')} <strong id="dest-total-count">0</strong></span>
                 </div>
                 <div class="loading" data-fr="Chargement des données de destinations..." data-en="Loading destination data...">${t('loading_destinations')}</div>
             </div>
@@ -417,9 +417,9 @@
             <div id="exportateurs" class="tab-content">
                 <h2 data-fr="Analyse des Exportateurs" data-en="Exporters Analysis">Analyse des Exportateurs</h2>
                 <div id="exportateurs-summary" class="summary-stats" style="display: none;">
-                    <span class="stat-item">Total filtré: <strong id="exp-total-volume">0</strong> tonnes</span>
-                    <span class="stat-item">Valeur: <strong id="exp-total-value">0</strong> M FCFA</span>
-                    <span class="stat-item">Transactions: <strong id="exp-total-count">0</strong></span>
+                    <span class="stat-item" data-fr="Total filtré: " data-en="Filtered total: ">${t('filtered_total')} <strong id="exp-total-volume">0</strong> ${t('tonnes_unit')}</span>
+                    <span class="stat-item" data-fr="Valeur: " data-en="Value: ">${t('value_label')} <strong id="exp-total-value">0</strong> ${t('value_unit')}</span>
+                    <span class="stat-item" data-fr="Transactions: " data-en="Transactions: ">${t('transactions_label')} <strong id="exp-total-count">0</strong></span>
                 </div>
                 
                 <div class="filter-section">
@@ -464,9 +464,9 @@
             <div id="clients" class="tab-content">
                 <h2 data-fr="Analyse des Clients (Destinataires)" data-en="Clients Analysis (Recipients)">Analyse des Clients (Destinataires)</h2>
                 <div id="clients-summary" class="summary-stats" style="display: none;">
-                    <span class="stat-item">Total filtré: <strong id="cli-total-volume">0</strong> tonnes</span>
-                    <span class="stat-item">Valeur: <strong id="cli-total-value">0</strong> M FCFA</span>
-                    <span class="stat-item">Transactions: <strong id="cli-total-count">0</strong></span>
+                    <span class="stat-item" data-fr="Total filtré: " data-en="Filtered total: ">${t('filtered_total')} <strong id="cli-total-volume">0</strong> ${t('tonnes_unit')}</span>
+                    <span class="stat-item" data-fr="Valeur: " data-en="Value: ">${t('value_label')} <strong id="cli-total-value">0</strong> ${t('value_unit')}</span>
+                    <span class="stat-item" data-fr="Transactions: " data-en="Transactions: ">${t('transactions_label')} <strong id="cli-total-count">0</strong></span>
                 </div>
                 
                 <div class="filter-section">
@@ -744,6 +744,23 @@
                 'filter_by_exporter': 'Filtrer par Exportateur:',
                 'client_name': 'Client (Destinataire)',
                 'main_exporters': 'Principaux Exportateurs',
+                // Summary stats
+                'filtered_total': 'Total filtré:',
+                'tonnes_unit': 'tonnes',
+                'value_unit': 'M FCFA',
+                'transactions_unit': '',
+                'value_label': 'Valeur:',
+                'transactions_label': 'Transactions:',
+                // Table headers
+                'exporter_col': 'Exportateur',
+                'total_volume_col': 'Volume Total (tonnes)',
+                'total_value_col': 'Valeur (M FCFA)',
+                'avg_price_col': 'Prix Moyen (FCFA/kg)',
+                'main_declarant_col': 'Déclarant Principal',
+                'main_destinations_col': 'Principales Destinations',
+                'main_products_col': 'Principaux Produits',
+                'client_col': 'Client (Destinataire)',
+                'main_exporters_col': 'Principaux Exportateurs',
                 // ZES detailed content
                 'zei_arise_abidjan': 'ZEI Arise Abidjan PK24',
                 'location_label': 'Localisation:',
@@ -1041,7 +1058,24 @@
                 'concentration_analysis': 'Concentration:',
                 'concentration_desc': 'The top 5 countries represent 59.1% of total volume.',
                 'diversification_analysis': 'Diversification:',
-                'diversification_desc': '51 destination countries, with strong concentration on Europe and Asia.'
+                'diversification_desc': '51 destination countries, with strong concentration on Europe and Asia.',
+                // Summary stats
+                'filtered_total': 'Filtered total:',
+                'tonnes_unit': 'tonnes',
+                'value_unit': 'M FCFA',
+                'transactions_unit': '',
+                'value_label': 'Value:',
+                'transactions_label': 'Transactions:',
+                // Table headers
+                'exporter_col': 'Exporter',
+                'total_volume_col': 'Total Volume (tonnes)',
+                'total_value_col': 'Value (M FCFA)',
+                'avg_price_col': 'Average Price (FCFA/kg)',
+                'main_declarant_col': 'Main Declarant',
+                'main_destinations_col': 'Main Destinations',
+                'main_products_col': 'Main Products',
+                'client_col': 'Client (Recipient)',
+                'main_exporters_col': 'Main Exporters'
             }
         };
 
@@ -1351,9 +1385,9 @@
                 <h2>${t('title_destinations')}</h2>
                 
                 <div id="destinations-summary" class="summary-stats" style="display: none;">
-                    <span class="stat-item">Total filtré: <strong id="dest-total-volume">0</strong> tonnes</span>
-                    <span class="stat-item">Valeur: <strong id="dest-total-value">0</strong> M FCFA</span>
-                    <span class="stat-item">Transactions: <strong id="dest-total-count">0</strong></span>
+                    <span class="stat-item">${t('filtered_total')} <strong id="dest-total-volume">0</strong> ${t('tonnes_unit')}</span>
+                    <span class="stat-item">${t('value_label')} <strong id="dest-total-value">0</strong> ${t('value_unit')}</span>
+                    <span class="stat-item">${t('transactions_label')} <strong id="dest-total-count">0</strong></span>
                 </div>
                 
                 <div class="stats-grid">
@@ -2173,13 +2207,13 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Exportateur</th>
-                            <th>Volume Total (tonnes)</th>
-                            <th>Valeur (M FCFA)</th>
-                            <th>Prix Moyen (FCFA/kg)</th>
-                            <th>Déclarant Principal</th>
-                            <th>Principales Destinations</th>
-                            <th>Principaux Produits</th>
+                            <th>${t('exporter_col')}</th>
+                            <th>${t('total_volume_col')}</th>
+                            <th>${t('total_value_col')}</th>
+                            <th>${t('avg_price_col')}</th>
+                            <th>${t('main_declarant_col')}</th>
+                            <th>${t('main_destinations_col')}</th>
+                            <th>${t('main_products_col')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2353,14 +2387,14 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Client (Destinataire)</th>
-                            <th>Volume Total (tonnes)</th>
-                            <th>Valeur (M FCFA)</th>
-                            <th>Prix Moyen (FCFA/kg)</th>
-                            <th>Déclarant Principal</th>
-                            <th>Principaux Exportateurs</th>
-                            <th>Principales Destinations</th>
-                            <th>Principaux Produits</th>
+                            <th>${t('client_col')}</th>
+                            <th>${t('total_volume_col')}</th>
+                            <th>${t('total_value_col')}</th>
+                            <th>${t('avg_price_col')}</th>
+                            <th>${t('main_declarant_col')}</th>
+                            <th>${t('main_exporters_col')}</th>
+                            <th>${t('main_destinations_col')}</th>
+                            <th>${t('main_products_col')}</th>
                         </tr>
                     </thead>
                     <tbody>
