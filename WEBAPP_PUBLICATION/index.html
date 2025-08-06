@@ -319,6 +319,8 @@
             <button class="tab active" onclick="showTab('zes')" data-fr="ZES" data-en="SEZ">ZES</button>
             <button class="tab" onclick="showTab('transformation')" data-fr="Transformation" data-en="Processing">Transformation</button>
             <button class="tab" onclick="showTab('destinations')" data-fr="Destinations" data-en="Destinations">Destinations</button>
+            <button class="tab" onclick="showTab('exportateurs')" data-fr="Exportateurs" data-en="Exporters">Exportateurs</button>
+            <button class="tab" onclick="showTab('clients')" data-fr="Clients" data-en="Clients">Clients</button>
             <button class="tab" onclick="showTab('cartes')" data-fr="Cartes" data-en="Maps">Cartes</button>
         </div>
 
@@ -384,6 +386,90 @@
                 <h2 data-fr="Cartographie des Risques" data-en="Risk Mapping">${t('title_cartes')}</h2>
                 <div class="loading" data-fr="Chargement de la cartographie..." data-en="Loading mapping...">${t('loading_cartes')}</div>
             </div>
+
+            <!-- Onglet Exportateurs -->
+            <div id="exportateurs" class="tab-content">
+                <h2 data-fr="Analyse des Exportateurs" data-en="Exporters Analysis">Analyse des Exportateurs</h2>
+                
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Destination:" data-en="Filter by Destination:">Filtrer par Destination:</label>
+                        <select id="expDestFilter" onchange="filterExporteurs()">
+                            <option value="" data-fr="Toutes les destinations" data-en="All destinations">Toutes les destinations</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Destinataire:" data-en="Filter by Recipient:">Filtrer par Destinataire:</label>
+                        <select id="expRecipientFilter" onchange="filterExportateurs()">
+                            <option value="" data-fr="Tous les destinataires" data-en="All recipients">Tous les destinataires</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Déclarant:" data-en="Filter by Declarant:">Filtrer par Déclarant:</label>
+                        <select id="expDeclarantFilter" onchange="filterExportateurs()">
+                            <option value="" data-fr="Tous les déclarants" data-en="All declarants">Tous les déclarants</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Produit:" data-en="Filter by Product:">Filtrer par Produit:</label>
+                        <select id="expProductFilter" onchange="filterExportateurs()">
+                            <option value="" data-fr="Tous les produits" data-en="All products">Tous les produits</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Emballage:" data-en="Filter by Packaging:">Filtrer par Emballage:</label>
+                        <select id="expPackagingFilter" onchange="filterExportateurs()">
+                            <option value="" data-fr="Tous les emballages" data-en="All packaging">Tous les emballages</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="exportateurs-table-container">
+                    <div class="loading" data-fr="Chargement des données..." data-en="Loading data...">Chargement des données...</div>
+                </div>
+            </div>
+
+            <!-- Onglet Clients -->
+            <div id="clients" class="tab-content">
+                <h2 data-fr="Analyse des Clients (Destinataires)" data-en="Clients Analysis (Recipients)">Analyse des Clients (Destinataires)</h2>
+                
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Exportateur:" data-en="Filter by Exporter:">Filtrer par Exportateur:</label>
+                        <select id="cliExporterFilter" onchange="filterClients()">
+                            <option value="" data-fr="Tous les exportateurs" data-en="All exporters">Tous les exportateurs</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Destination:" data-en="Filter by Destination:">Filtrer par Destination:</label>
+                        <select id="cliDestFilter" onchange="filterClients()">
+                            <option value="" data-fr="Toutes les destinations" data-en="All destinations">Toutes les destinations</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Déclarant:" data-en="Filter by Declarant:">Filtrer par Déclarant:</label>
+                        <select id="cliDeclarantFilter" onchange="filterClients()">
+                            <option value="" data-fr="Tous les déclarants" data-en="All declarants">Tous les déclarants</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Produit:" data-en="Filter by Product:">Filtrer par Produit:</label>
+                        <select id="cliProductFilter" onchange="filterClients()">
+                            <option value="" data-fr="Tous les produits" data-en="All products">Tous les produits</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label data-fr="Filtrer par Emballage:" data-en="Filter by Packaging:">Filtrer par Emballage:</label>
+                        <select id="cliPackagingFilter" onchange="filterClients()">
+                            <option value="" data-fr="Tous les emballages" data-en="All packaging">Tous les emballages</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="clients-table-container">
+                    <div class="loading" data-fr="Chargement des données..." data-en="Loading data...">Chargement des données...</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -393,6 +479,32 @@
         let filteredRecords = [];
         let zesMap = null;
         let currentLang = 'fr';
+        
+        // Global country code mapping
+        const countryCodeMapping = {
+            'NL': 'Pays-Bas', 'FR': 'France', 'US': 'États-Unis', 'ES': 'Espagne',
+            'BE': 'Belgique', 'DE': 'Allemagne', 'MY': 'Malaisie', 'GB': 'Royaume-Uni',
+            'CA': 'Canada', 'EE': 'Estonie', 'IT': 'Italie', 'ZA': 'Afrique du Sud',
+            'TR': 'Turquie', 'PL': 'Pologne', 'BR': 'Brésil', 'PT': 'Portugal',
+            'ID': 'Indonésie', 'AU': 'Australie', 'CN': 'Chine', 'MX': 'Mexique',
+            'AR': 'Argentine', 'CH': 'Suisse', 'RU': 'Russie', 'JP': 'Japon',
+            'KR': 'Corée du Sud', 'TH': 'Thaïlande', 'VN': 'Vietnam', 'SG': 'Singapour',
+            'PH': 'Philippines', 'IN': 'Inde', 'AT': 'Autriche', 'NO': 'Norvège',
+            'SE': 'Suède', 'FI': 'Finlande', 'DK': 'Danemark', 'IE': 'Irlande',
+            'CZ': 'République tchèque', 'HU': 'Hongrie', 'SK': 'Slovaquie', 'RO': 'Roumanie',
+            'BG': 'Bulgarie', 'HR': 'Croatie', 'SI': 'Slovénie', 'LT': 'Lituanie',
+            'LV': 'Lettonie', 'EE': 'Estonie', 'MT': 'Malte', 'CY': 'Chypre',
+            'LU': 'Luxembourg', 'IS': 'Islande', 'LI': 'Liechtenstein', 'AD': 'Andorre',
+            'MC': 'Monaco', 'SM': 'Saint-Marin', 'VA': 'Vatican', 'GR': 'Grèce',
+            'IL': 'Israël', 'BG': 'Bulgarie', 'MA': 'Maroc', 'JP': 'Japon',
+            'EG': 'Égypte', 'QA': 'Qatar', 'LT': 'Lituanie', 'CM': 'Cameroun',
+            'UY': 'Uruguay', 'SN': 'Sénégal', 'RU': 'Russie', 'HR': 'Croatie',
+            'LV': 'Lettonie', 'NZ': 'Nouvelle-Zélande', 'IN': 'Inde', 'SA': 'Arabie Saoudite',
+            'VE': 'Venezuela', 'TN': 'Tunisie', 'KH': 'Cambodge', 'LB': 'Liban',
+            'SY': 'Syrie', 'CI': 'Côte d\'Ivoire', 'DZ': 'Algérie', 'CG': 'Congo',
+            'KE': 'Kenya', 'AE': 'Émirats Arabes Unis', 'VN': 'Vietnam', 'GA': 'Gabon',
+            'MG': 'Madagascar', '99': 'Non spécifié'
+        };
 
         // Translations object
         const translations = {
@@ -579,6 +691,23 @@
                 'contracts_label': 'Contrats:',
                 'force_majeure': 'Clauses de force majeure renforcées',
                 'multi_risk_coverage': 'Couverture multi-risques adaptée',
+                // Exportateurs tab
+                'exporters_title': 'Analyse des Exportateurs',
+                'filter_by_destination': 'Filtrer par Destination:',
+                'filter_by_recipient': 'Filtrer par Destinataire:',
+                'filter_by_declarant': 'Filtrer par Déclarant:',
+                'filter_by_product': 'Filtrer par Produit:',
+                'filter_by_packaging': 'Filtrer par Emballage:',
+                'exporter_name': 'Exportateur',
+                'total_volume': 'Volume Total (kg)',
+                'avg_price': 'Prix Moyen (FCFA/kg)',
+                'main_destinations': 'Principales Destinations',
+                'main_products': 'Principaux Produits',
+                // Clients tab
+                'clients_title': 'Analyse des Clients (Destinataires)',
+                'filter_by_exporter': 'Filtrer par Exportateur:',
+                'client_name': 'Client (Destinataire)',
+                'main_exporters': 'Principaux Exportateurs',
                 // ZES detailed content
                 'zei_arise_abidjan': 'ZEI Arise Abidjan PK24',
                 'location_label': 'Localisation:',
@@ -904,6 +1033,20 @@
                 loadTransformationTab();
             } else if (tabName === 'destinations' && !allData) {
                 loadDestinationsTab();
+            } else if (tabName === 'exportateurs') {
+                if (!allData) {
+                    loadDestinationsTab(); // This loads allData
+                    setTimeout(() => renderExportateursTab(), 500);
+                } else {
+                    renderExportateursTab();
+                }
+            } else if (tabName === 'clients') {
+                if (!allData) {
+                    loadDestinationsTab(); // This loads allData
+                    setTimeout(() => renderClientsTab(), 500);
+                } else {
+                    renderClientsTab();
+                }
             } else if (tabName === 'cartes') {
                 loadCartesTab();
             }
@@ -1887,6 +2030,334 @@
             sectorsList.innerHTML = sectors.map(sector => 
                 `<li><strong>${sector.title}</strong> ${sector.desc}</li>`
             ).join('');
+        }
+
+        // Function to render Exportateurs tab
+        function renderExportateursTab() {
+            if (!allData || !allData.records) {
+                console.error('No data available for exportateurs');
+                return;
+            }
+
+            // Populate filters using global countryCodeMapping
+            const destinationNames = [...new Set(allData.records.map(r => {
+                const destCode = r.destination || '99';
+                return countryCodeMapping[destCode] || 'Autres pays';
+            }))];
+            const recipients = allData.filters.destinataires || [];
+            const declarants = [...new Set(allData.records.map(r => r.declarant_simple || 'Non spécifié'))];
+            const products = [...new Set(allData.records.map(r => r.produit_simple || 'Non spécifié'))];
+            const packagings = [...new Set(allData.records.map(r => r.emballage_simple || 'Non spécifié'))];
+
+            // Populate filter dropdowns
+            populateSelect('expDestFilter', destinationNames.sort());
+            populateSelect('expRecipientFilter', recipients.sort());
+            populateSelect('expDeclarantFilter', declarants.sort());
+            populateSelect('expProductFilter', products.sort());
+            populateSelect('expPackagingFilter', packagings.sort());
+
+            // Generate table
+            generateExportateursTable();
+        }
+
+        function generateExportateursTable(filteredRecords = null) {
+            const records = filteredRecords || allData.records;
+            
+            // Group by exporter
+            const exporterData = {};
+            records.forEach(record => {
+                const exporter = record.exportateur_simple || 'Non spécifié';
+                if (!exporterData[exporter]) {
+                    exporterData[exporter] = {
+                        name: exporter,
+                        volume: 0,
+                        value: 0,
+                        count: 0,
+                        destinations: new Set(),
+                        products: new Set(),
+                        recipients: new Set(),
+                        declarants: new Set(),
+                        packagings: new Set()
+                    };
+                }
+                exporterData[exporter].volume += record.poids_net || 0;
+                exporterData[exporter].value += record.valfob || 0;
+                exporterData[exporter].count += 1;
+                if (record.destination) {
+                    const destCode = record.destination || '99';
+                    const destName = countryCodeMapping[destCode] || 'Autres pays';
+                    exporterData[exporter].destinations.add(destName);
+                }
+                if (record.produit_simple) exporterData[exporter].products.add(record.produit_simple);
+                if (record.destinataire_simple) exporterData[exporter].recipients.add(record.destinataire_simple);
+                if (record.declarant_simple) exporterData[exporter].declarants.add(record.declarant_simple);
+                if (record.emballage_simple) exporterData[exporter].packagings.add(record.emballage_simple);
+            });
+
+            // Convert to array and sort by volume
+            const exporters = Object.values(exporterData).sort((a, b) => b.volume - a.volume);
+
+            // Generate HTML table
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Exportateur</th>
+                            <th>Volume Total (tonnes)</th>
+                            <th>Valeur (M FCFA)</th>
+                            <th>Prix Moyen (FCFA/kg)</th>
+                            <th>Déclarant Principal</th>
+                            <th>Principales Destinations</th>
+                            <th>Principaux Produits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            exporters.forEach(exp => {
+                const avgPrice = exp.volume > 0 ? exp.value / exp.volume : 0;
+                const topDestinations = Array.from(exp.destinations).slice(0, 3).join(', ');
+                const topProducts = Array.from(exp.products).slice(0, 3).join(', ');
+                const topDeclarant = Array.from(exp.declarants)[0] || 'Non spécifié';
+                
+                html += `
+                    <tr>
+                        <td><strong>${exp.name}</strong></td>
+                        <td>${Math.round(exp.volume / 1000).toLocaleString()}</td>
+                        <td>${Math.round(exp.value / 1000000).toLocaleString()}</td>
+                        <td>${Math.round(avgPrice).toLocaleString()}</td>
+                        <td>${topDeclarant}</td>
+                        <td>${topDestinations}</td>
+                        <td>${topProducts}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('exportateurs-table-container').innerHTML = html;
+        }
+
+        function filterExportateurs() {
+            const destFilter = document.getElementById('expDestFilter').value;
+            const recipientFilter = document.getElementById('expRecipientFilter').value;
+            const declarantFilter = document.getElementById('expDeclarantFilter').value;
+            const productFilter = document.getElementById('expProductFilter').value;
+            const packagingFilter = document.getElementById('expPackagingFilter').value;
+
+            let filtered = allData.records;
+
+            if (destFilter) {
+                filtered = filtered.filter(r => {
+                    const destCode = r.destination || '99';
+                    const destName = countryCodeMapping[destCode] || 'Autres pays';
+                    return destName === destFilter;
+                });
+            }
+            if (recipientFilter) {
+                filtered = filtered.filter(r => r.destinataire_simple === recipientFilter);
+            }
+            if (declarantFilter) {
+                filtered = filtered.filter(r => r.declarant_simple === declarantFilter);
+            }
+            if (productFilter) {
+                filtered = filtered.filter(r => r.produit_simple === productFilter);
+            }
+            if (packagingFilter) {
+                filtered = filtered.filter(r => r.emballage_simple === packagingFilter);
+            }
+
+            generateExportateursTable(filtered);
+        }
+
+        // Function to clean company names
+        function cleanCompanyName(name) {
+            if (!name) return 'Non spécifié';
+            
+            // Remove addresses and extra information
+            let cleanName = name.replace(/\n.*$/gm, ''); // Remove everything after newline
+            cleanName = cleanName.replace(/\s+\d+.*$/, ''); // Remove addresses starting with numbers
+            cleanName = cleanName.replace(/\s*[A-Z]{2,}\s*\d.*$/, ''); // Remove country codes + addresses
+            cleanName = cleanName.replace(/\s*(PO\s*BOX|BP|RUE|AVENUE|STREET).*$/i, ''); // Remove address keywords
+            cleanName = cleanName.replace(/\s*(TEL|FAX|PHONE).*$/i, ''); // Remove contact info
+            cleanName = cleanName.replace(/\s*\(.*\)\s*$/, ''); // Remove parentheses at end
+            cleanName = cleanName.replace(/\s*[,;].*$/, ''); // Remove everything after comma/semicolon
+            cleanName = cleanName.replace(/^["']|["']$/g, ''); // Remove quotes at start/end
+            cleanName = cleanName.trim();
+            
+            return cleanName || 'Non spécifié';
+        }
+
+        // Function to render Clients tab
+        function renderClientsTab() {
+            if (!allData || !allData.records) {
+                console.error('No data available for clients');
+                return;
+            }
+
+            // Use global countryCodeMapping
+            
+            const exporters = [...new Set(allData.records.map(r => r.exportateur_simple || 'Non spécifié'))];
+            const destinationNames = [...new Set(allData.records.map(r => {
+                const destCode = r.destination || '99';
+                return countryCodeMapping[destCode] || 'Autres pays';
+            }))];
+            const declarants = [...new Set(allData.records.map(r => r.declarant_simple || 'Non spécifié'))];
+            const products = [...new Set(allData.records.map(r => r.produit_simple || 'Non spécifié'))];
+            const packagings = [...new Set(allData.records.map(r => r.emballage_simple || 'Non spécifié'))];
+
+            // Populate filter dropdowns
+            populateSelect('cliExporterFilter', exporters.sort());
+            populateSelect('cliDestFilter', destinationNames.sort());
+            populateSelect('cliDeclarantFilter', declarants.sort());
+            populateSelect('cliProductFilter', products.sort());
+            populateSelect('cliPackagingFilter', packagings.sort());
+
+            // Generate table
+            generateClientsTable();
+        }
+
+        function generateClientsTable(filteredRecords = null) {
+            const records = filteredRecords || allData.records;
+            
+            // Group by client (destinataire_simple)
+            const clientData = {};
+            records.forEach(record => {
+                // Clean the client name using the same logic as the filters
+                const rawClient = record.destinataire_simple || 'Non spécifié';
+                const client = cleanCompanyName(rawClient);
+                if (!clientData[client]) {
+                    clientData[client] = {
+                        name: client,
+                        volume: 0,
+                        value: 0,
+                        count: 0,
+                        exporters: new Set(),
+                        destinations: new Set(),
+                        products: new Set(),
+                        declarants: new Set(),
+                        packagings: new Set()
+                    };
+                }
+                clientData[client].volume += record.poids_net || 0;
+                clientData[client].value += record.valfob || 0;
+                clientData[client].count += 1;
+                if (record.exportateur_simple) clientData[client].exporters.add(record.exportateur_simple);
+                if (record.destination) {
+                    const destCode = record.destination || '99';
+                    const destName = countryCodeMapping[destCode] || 'Autres pays';
+                    clientData[client].destinations.add(destName);
+                }
+                if (record.produit_simple) clientData[client].products.add(record.produit_simple);
+                if (record.declarant_simple) clientData[client].declarants.add(record.declarant_simple);
+                if (record.emballage_simple) clientData[client].packagings.add(record.emballage_simple);
+            });
+
+            // Convert to array and sort by volume
+            const clients = Object.values(clientData).sort((a, b) => b.volume - a.volume);
+
+            // Generate HTML table
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Client (Destinataire)</th>
+                            <th>Volume Total (tonnes)</th>
+                            <th>Valeur (M FCFA)</th>
+                            <th>Prix Moyen (FCFA/kg)</th>
+                            <th>Déclarant Principal</th>
+                            <th>Principaux Exportateurs</th>
+                            <th>Principales Destinations</th>
+                            <th>Principaux Produits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            clients.forEach(client => {
+                const avgPrice = client.volume > 0 ? client.value / client.volume : 0;
+                const topExporters = Array.from(client.exporters).slice(0, 3).join(', ');
+                const topDestinations = Array.from(client.destinations).slice(0, 3).join(', ');
+                const topProducts = Array.from(client.products).slice(0, 3).join(', ');
+                const topDeclarant = Array.from(client.declarants)[0] || 'Non spécifié';
+                
+                html += `
+                    <tr>
+                        <td><strong>${client.name}</strong></td>
+                        <td>${Math.round(client.volume / 1000).toLocaleString()}</td>
+                        <td>${Math.round(client.value / 1000000).toLocaleString()}</td>
+                        <td>${Math.round(avgPrice).toLocaleString()}</td>
+                        <td>${topDeclarant}</td>
+                        <td>${topExporters}</td>
+                        <td>${topDestinations}</td>
+                        <td>${topProducts}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('clients-table-container').innerHTML = html;
+        }
+
+        function filterClients() {
+            const exporterFilter = document.getElementById('cliExporterFilter').value;
+            const destFilter = document.getElementById('cliDestFilter').value;
+            const declarantFilter = document.getElementById('cliDeclarantFilter').value;
+            const productFilter = document.getElementById('cliProductFilter').value;
+            const packagingFilter = document.getElementById('cliPackagingFilter').value;
+
+            let filtered = allData.records;
+
+            if (exporterFilter) {
+                filtered = filtered.filter(r => r.exportateur_simple === exporterFilter);
+            }
+            if (destFilter) {
+                filtered = filtered.filter(r => {
+                    const destCode = r.destination || '99';
+                    const destName = countryCodeMapping[destCode] || 'Autres pays';
+                    return destName === destFilter;
+                });
+            }
+            if (declarantFilter) {
+                filtered = filtered.filter(r => r.declarant_simple === declarantFilter);
+            }
+            if (productFilter) {
+                filtered = filtered.filter(r => r.produit_simple === productFilter);
+            }
+            if (packagingFilter) {
+                filtered = filtered.filter(r => r.emballage_simple === packagingFilter);
+            }
+
+            generateClientsTable(filtered);
+        }
+
+        // Helper function to populate select dropdowns
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            const currentValue = select.value;
+            
+            // Keep first option (All)
+            const firstOption = select.options[0];
+            select.innerHTML = '';
+            select.appendChild(firstOption);
+            
+            // Add new options
+            options.forEach(option => {
+                const optElement = document.createElement('option');
+                optElement.value = option;
+                optElement.textContent = option;
+                select.appendChild(optElement);
+            });
+            
+            // Restore previous value if it exists
+            select.value = currentValue;
         }
 
         // Initialize ZES map and content on page load
