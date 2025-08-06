@@ -274,6 +274,27 @@
             margin: 10px 0;
         }
 
+        .summary-stats {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .stat-item strong {
+            color: #e67e22;
+            font-size: 1.1em;
+        }
+
         .map-container {
             height: 400px;
             border-radius: 10px;
@@ -378,6 +399,11 @@
             <!-- Onglet Destinations -->
             <div id="destinations" class="tab-content">
                 <h2 data-fr="Destinations des Exportations" data-en="Export Destinations">${t('title_destinations')}</h2>
+                <div id="destinations-summary" class="summary-stats" style="display: none;">
+                    <span class="stat-item">Total filtré: <strong id="dest-total-volume">0</strong> tonnes</span>
+                    <span class="stat-item">Valeur: <strong id="dest-total-value">0</strong> M FCFA</span>
+                    <span class="stat-item">Transactions: <strong id="dest-total-count">0</strong></span>
+                </div>
                 <div class="loading" data-fr="Chargement des données de destinations..." data-en="Loading destination data...">${t('loading_destinations')}</div>
             </div>
 
@@ -390,11 +416,16 @@
             <!-- Onglet Exportateurs -->
             <div id="exportateurs" class="tab-content">
                 <h2 data-fr="Analyse des Exportateurs" data-en="Exporters Analysis">Analyse des Exportateurs</h2>
+                <div id="exportateurs-summary" class="summary-stats" style="display: none;">
+                    <span class="stat-item">Total filtré: <strong id="exp-total-volume">0</strong> tonnes</span>
+                    <span class="stat-item">Valeur: <strong id="exp-total-value">0</strong> M FCFA</span>
+                    <span class="stat-item">Transactions: <strong id="exp-total-count">0</strong></span>
+                </div>
                 
                 <div class="filter-section">
                     <div class="filter-group">
                         <label data-fr="Filtrer par Destination:" data-en="Filter by Destination:">Filtrer par Destination:</label>
-                        <select id="expDestFilter" onchange="filterExporteurs()">
+                        <select id="expDestFilter" onchange="filterExportateurs()">
                             <option value="" data-fr="Toutes les destinations" data-en="All destinations">Toutes les destinations</option>
                         </select>
                     </div>
@@ -432,6 +463,11 @@
             <!-- Onglet Clients -->
             <div id="clients" class="tab-content">
                 <h2 data-fr="Analyse des Clients (Destinataires)" data-en="Clients Analysis (Recipients)">Analyse des Clients (Destinataires)</h2>
+                <div id="clients-summary" class="summary-stats" style="display: none;">
+                    <span class="stat-item">Total filtré: <strong id="cli-total-volume">0</strong> tonnes</span>
+                    <span class="stat-item">Valeur: <strong id="cli-total-value">0</strong> M FCFA</span>
+                    <span class="stat-item">Transactions: <strong id="cli-total-count">0</strong></span>
+                </div>
                 
                 <div class="filter-section">
                     <div class="filter-group">
@@ -1314,6 +1350,12 @@
             tab.innerHTML = `
                 <h2>${t('title_destinations')}</h2>
                 
+                <div id="destinations-summary" class="summary-stats" style="display: none;">
+                    <span class="stat-item">Total filtré: <strong id="dest-total-volume">0</strong> tonnes</span>
+                    <span class="stat-item">Valeur: <strong id="dest-total-value">0</strong> M FCFA</span>
+                    <span class="stat-item">Transactions: <strong id="dest-total-count">0</strong></span>
+                </div>
+                
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>${Object.keys(countryCounts).length}</h3>
@@ -1505,6 +1547,9 @@
                     }
                 }
             });
+            
+            // Initialize summary with all data
+            updateDestinationsSummary(allData.records);
         }
 
         function filterDestinations() {
@@ -1525,6 +1570,31 @@
             });
 
             updateDestinationsTable();
+            updateDestinationsSummary(filteredRecords);
+        }
+
+        // Function to update destinations summary stats
+        function updateDestinationsSummary(filteredRecords) {
+            // Check if elements exist before updating
+            const volumeEl = document.getElementById('dest-total-volume');
+            const valueEl = document.getElementById('dest-total-value');
+            const countEl = document.getElementById('dest-total-count');
+            const summaryEl = document.getElementById('destinations-summary');
+            
+            if (!volumeEl || !valueEl || !countEl || !summaryEl) {
+                console.log('Destinations summary elements not yet rendered');
+                return;
+            }
+            
+            const totalVolume = filteredRecords.reduce((sum, r) => sum + (r.poids_net || 0), 0);
+            const totalValue = filteredRecords.reduce((sum, r) => sum + (r.valfob || 0), 0);
+            const totalCount = filteredRecords.length;
+
+            volumeEl.textContent = (totalVolume / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+            valueEl.textContent = (totalValue / 1000000).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+            countEl.textContent = totalCount.toLocaleString('fr-FR');
+            
+            summaryEl.style.display = 'block';
         }
 
         function updateDestinationsTable() {
@@ -2058,6 +2128,7 @@
 
             // Generate table
             generateExportateursTable();
+            updateExporteursSummary(allData.records);
         }
 
         function generateExportateursTable(filteredRecords = null) {
@@ -2158,7 +2229,10 @@
                 });
             }
             if (recipientFilter) {
-                filtered = filtered.filter(r => r.destinataire_simple === recipientFilter);
+                filtered = filtered.filter(r => {
+                    const cleanRecipient = cleanCompanyName(r.destinataire_simple);
+                    return cleanRecipient === recipientFilter;
+                });
             }
             if (declarantFilter) {
                 filtered = filtered.filter(r => r.declarant_simple === declarantFilter);
@@ -2171,6 +2245,20 @@
             }
 
             generateExportateursTable(filtered);
+            updateExporteursSummary(filtered);
+        }
+
+        // Function to update exportateurs summary stats
+        function updateExporteursSummary(filteredRecords) {
+            const totalVolume = filteredRecords.reduce((sum, r) => sum + (r.poids_net || 0), 0);
+            const totalValue = filteredRecords.reduce((sum, r) => sum + (r.valfob || 0), 0);
+            const totalCount = filteredRecords.length;
+
+            document.getElementById('exp-total-volume').textContent = (totalVolume / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+            document.getElementById('exp-total-value').textContent = (totalValue / 1000000).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+            document.getElementById('exp-total-count').textContent = totalCount.toLocaleString('fr-FR');
+            
+            document.getElementById('exportateurs-summary').style.display = 'block';
         }
 
         // Function to clean company names
@@ -2218,6 +2306,7 @@
 
             // Generate table
             generateClientsTable();
+            updateClientsSummary(allData.records);
         }
 
         function generateClientsTable(filteredRecords = null) {
@@ -2336,6 +2425,20 @@
             }
 
             generateClientsTable(filtered);
+            updateClientsSummary(filtered);
+        }
+
+        // Function to update clients summary stats
+        function updateClientsSummary(filteredRecords) {
+            const totalVolume = filteredRecords.reduce((sum, r) => sum + (r.poids_net || 0), 0);
+            const totalValue = filteredRecords.reduce((sum, r) => sum + (r.valfob || 0), 0);
+            const totalCount = filteredRecords.length;
+
+            document.getElementById('cli-total-volume').textContent = (totalVolume / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+            document.getElementById('cli-total-value').textContent = (totalValue / 1000000).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+            document.getElementById('cli-total-count').textContent = totalCount.toLocaleString('fr-FR');
+            
+            document.getElementById('clients-summary').style.display = 'block';
         }
 
         // Helper function to populate select dropdowns
